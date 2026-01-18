@@ -1,0 +1,77 @@
+from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout
+from ui.components.cart_mfe.presenter import CartPresenter
+from ui.components.chat_mfe.presenter import ChatPresenter
+from data.repositories.supermarket_repo import SupermarketRepository
+from ui.dialogs.ambiguity_dialog import AmbiguityDialog
+from core.workers import AIWorker
+from models.types import ClarificationRequest, StoreResult
+
+class AppController(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Supermarket Agent - Final Project")
+        self.resize(1200, 700)
+        
+        # --- Data Layer ---
+        self.repo = SupermarketRepository()
+        
+        # --- Presentation Layer ---
+        # We create the "brains", they will create their UI internally
+        self.chat_presenter = ChatPresenter()
+        self.cart_presenter = CartPresenter()
+        
+        # --- Main UI Layout ---
+        central_widget = QWidget()
+        main_layout = QHBoxLayout(central_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        
+        # Pulling the graphic widgets from the presenters
+        main_layout.addWidget(self.chat_presenter.get_widget(), 45) # 45% width
+        main_layout.addWidget(self.cart_presenter.get_widget(), 55) # 55% width
+        
+        self.setCentralWidget(central_widget)
+        
+        # --- Wiring / Logic Flow ---
+        # When user sends a message in chat -> trigger the main function in Controller
+        self.chat_presenter.user_input_submitted.connect(self.handle_user_message)
+
+    def handle_user_message(self, text):
+        """The central function managing the process"""
+        
+        # 1. Update chat that agent received the request
+        self.chat_presenter.display_agent_response("Checking supermarkets...")
+        
+        # 2. Start the Worker (Thread) to avoid freezing the GUI
+        # Passing it the Repo and the text
+        self.worker = AIWorker(self.repo, text)
+        
+        # 3. When Thread finishes, it calls on_ai_response
+        self.worker.finished.connect(self.on_ai_response)
+        
+        # 4. Start work
+        self.worker.start()
+
+    def on_ai_response(self, result):
+        """Handling the response from the server/mock"""
+        
+        # --- Case A: Server is confused (Clarification) ---
+        if isinstance(result, ClarificationRequest):
+            # Create modal dialog
+            dialog = AmbiguityDialog(result, self)
+            if dialog.exec(): 
+                # If user chose an option and clicked OK
+                choice = dialog.selected_choice
+                self.chat_presenter.display_agent_response(f"Great, you chose: {choice}")
+                
+                # Logic recursion: sending choice back to engine
+                self.handle_user_message(f"User specifically chose: {choice}")
+
+        # --- Case B: Server returned a result (StoreResult) ---
+        elif isinstance(result, StoreResult):
+            # Update Chat
+            self.chat_presenter.display_agent_response(
+                f"Found it! The cheapest basket is at {result.store_name}."
+            )
+            # Update Cart Micro-Frontend with new data
+            self.cart_presenter.update_data(result)
