@@ -1,22 +1,26 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout
 from ui.components.cart_mfe.presenter import CartPresenter
 from ui.components.chat_mfe.presenter import ChatPresenter
+from ui.components.user_mfe.presenter import UserPresenter
 from data.repositories.supermarket_repo import SupermarketRepository
 from ui.dialogs.ambiguity_dialog import AmbiguityDialog
 from core.workers import AIWorker
+from core.user_manager import UserManager
 from models.types import ClarificationRequest, StoreResult
 
 class AppController(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Supermarket Agent - Final Project")
-        self.resize(1200, 700)
+        self.resize(1400, 700)
         
-        # --- Data Layer ---
+        # --- Data & State Layer ---
         self.repo = SupermarketRepository()
+        self.user_manager = UserManager()
         
         # --- Presentation Layer ---
         # We create the "brains", they will create their UI internally
+        self.user_presenter = UserPresenter(self.user_manager)
         self.chat_presenter = ChatPresenter()
         self.cart_presenter = CartPresenter()
         
@@ -27,14 +31,18 @@ class AppController(QMainWindow):
         main_layout.setSpacing(0)
         
         # Pulling the graphic widgets from the presenters
-        main_layout.addWidget(self.chat_presenter.get_widget(), 45) # 45% width
-        main_layout.addWidget(self.cart_presenter.get_widget(), 55) # 55% width
+        main_layout.addWidget(self.user_presenter.get_widget(), 20) # 20% width
+        main_layout.addWidget(self.chat_presenter.get_widget(), 40) # 40% width
+        main_layout.addWidget(self.cart_presenter.get_widget(), 40) # 40% width
         
         self.setCentralWidget(central_widget)
         
         # --- Wiring / Logic Flow ---
         # When user sends a message in chat -> trigger the main function in Controller
         self.chat_presenter.user_input_submitted.connect(self.handle_user_message)
+        
+        # --- Bootstrap ---
+        self.user_manager.login_guest()
 
     def handle_user_message(self, text):
         """The central function managing the process"""
