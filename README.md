@@ -82,6 +82,7 @@ To connect a real backend:
 
     ```json
     {
+      "user_id": "uuid-...",
       "prompt": "I need milk and bread"
     }
     ```

@@ -50,14 +50,14 @@ class AppController(QMainWindow):
         # 1. Update chat that agent received the request
         self.chat_presenter.display_agent_response("Checking supermarkets...")
         
-        # 2. Start the Worker (Thread) to avoid freezing the GUI
-        # Passing it the Repo and the text
-        self.worker = AIWorker(self.repo, text)
+        # 2. Start background worker to call the AI API
+        current_user_id = self.user_manager.current_user.id
         
-        # 3. When Thread finishes, it calls on_ai_response
+        # Create worker
+        self.worker = AIWorker(self.repo, text, current_user_id)
+        
+        # Connect signals
         self.worker.finished.connect(self.on_ai_response)
-        
-        # 4. Start work
         self.worker.start()
 
     def on_ai_response(self, result):
