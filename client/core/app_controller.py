@@ -12,7 +12,7 @@ class AppController(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Supermarket Agent - Final Project")
-        self.resize(1400, 700)
+        self.resize(1000, 700)
         
         # --- Data & State Layer ---
         self.repo = SupermarketRepository()
@@ -20,7 +20,6 @@ class AppController(QMainWindow):
         
         # --- Presentation Layer ---
         # We create the "brains", they will create their UI internally
-        self.user_presenter = UserPresenter(self.user_manager)
         self.chat_presenter = ChatPresenter()
         self.cart_presenter = CartPresenter()
         
@@ -31,7 +30,6 @@ class AppController(QMainWindow):
         main_layout.setSpacing(0)
         
         # Pulling the graphic widgets from the presenters
-        main_layout.addWidget(self.user_presenter.get_widget(), 20) # 20% width
         main_layout.addWidget(self.chat_presenter.get_widget(), 40) # 40% width
         main_layout.addWidget(self.cart_presenter.get_widget(), 40) # 40% width
         
