@@ -3,38 +3,36 @@ import socketserver
 import json
 import sys
 
-# This is the port we defined in your client
 PORT = 8000
 
 class RequestSpyHandler(http.server.BaseHTTPRequestHandler):
+    
+    def _read_json(self):
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        return json.loads(post_data.decode('utf-8'))
+
     def do_POST(self):
-        # 1. Identify the address the request was sent to
         if self.path == '/api/search':
             self._handle_search()
+        elif self.path == '/api/cart/update':
+            self._handle_cart_update()
         else:
             self.send_error(404, "Endpoint not found")
 
     def _handle_search(self):
-        # 2. Reading the information sent from the client (your client)
-        content_length = int(self.headers['Content-Length'])
-        post_data = self.rfile.read(content_length)
-        
         try:
-            # Convert the data to JSON and print it nicely to the screen
-            json_payload = json.loads(post_data.decode('utf-8'))
+            json_payload = self._read_json() 
             
             print("\n" + "="*40)
-            print(f"📡 RECEIVED REQUEST AT: {self.path}")
-            print("="*40)
+            print(f"🔎 SEARCH REQUEST: {self.path}")
             print(json.dumps(json_payload, indent=4, ensure_ascii=False))
-            print("="*40 + "\n")
+            print("="*40)
 
-            # 3. Return a valid response (so the client continues to work)
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
 
-            # Prepare a dummy response that matches the structure in types.py
             dummy_response = {
                 "type": "result",
                 "data": {
@@ -47,27 +45,34 @@ class RequestSpyHandler(http.server.BaseHTTPRequestHandler):
                     ]
                 }
             }
+            self.wfile.write(json.dumps(dummy_response).encode('utf-8'))
             
-            # Sending the response
-            response_json = json.dumps(dummy_response, indent=4)
-            print("\n" + "-"*40)
-            print("📤 SENDING RESPONSE:")
-            print("-"*40)
-            print(response_json)
-            print("-"*40 + "\n")
-            self.wfile.write(response_json.encode('utf-8'))
-            
-        except json.JSONDecodeError:
-            print("❌ Error: Received data is not valid JSON")
-            self.send_error(400, "Invalid JSON")
+        except Exception as e:
+            self.send_error(400, f"Error: {e}")
 
-# Defining the server
+    def _handle_cart_update(self):
+        try:
+            json_payload = self._read_json() 
+            
+            print("\n" + "*"*40)
+            print(f"🛒 CART UPDATE REQUEST: {self.path}")
+            print("*"*40)
+            print(json.dumps(json_payload, indent=4, ensure_ascii=False))
+            print("*"*40 + "\n")
+
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            
+            self.wfile.write(json.dumps({"status": "updated"}).encode('utf-8'))
+
+        except Exception as e:
+            self.send_error(400, f"Error: {e}")
+
 with socketserver.TCPServer(("", PORT), RequestSpyHandler) as httpd:
     print(f"🕵️  Spy Server is running at http://localhost:{PORT}")
-    print("Waiting for requests from your app...")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
-        print("\nStopping server.")
         httpd.server_close()
         sys.exit()

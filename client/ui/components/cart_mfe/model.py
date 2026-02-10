@@ -27,3 +27,10 @@ class CartModel:
                     self.total_price += (item.price * delta)
                     return True
         return False
+    
+    def get_item_quantity(self, item_id: str) -> Optional[int]:
+        """Helper function to get current quantity of an item (for syncing with server)"""
+        for item in self.items:
+            if item.id == item_id:
+                return item.quantity
+        return None

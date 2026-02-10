@@ -1,10 +1,11 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout
+from PySide6.QtCore import QThreadPool
 from ui.components.cart_mfe.presenter import CartPresenter
 from ui.components.chat_mfe.presenter import ChatPresenter
 from ui.components.user_mfe.presenter import UserPresenter
 from data.repositories.supermarket_repo import SupermarketRepository
 from ui.dialogs.ambiguity_dialog import AmbiguityDialog
-from core.workers import AIWorker
+from core.workers import AIWorker, CartUpdateWorker
 from core.user_manager import UserManager
 from models.types import ClarificationRequest, StoreResult
 
@@ -21,7 +22,10 @@ class AppController(QMainWindow):
         # --- Presentation Layer ---
         # We create the "brains", they will create their UI internally
         self.chat_presenter = ChatPresenter()
-        self.cart_presenter = CartPresenter()
+        self.cart_presenter = CartPresenter(self.repo) # We pass the repo to the Cart Presenter so it can update the server when user changes quantity
+        
+        # Connect cart item change signal to update worker
+        self.cart_presenter.cart_item_changed.connect(self.handle_cart_update)
         
         # --- Main UI Layout ---
         central_widget = QWidget()
@@ -41,6 +45,12 @@ class AppController(QMainWindow):
         
         # --- Bootstrap ---
         self.user_manager.login_guest()
+
+    def handle_cart_update(self, item_id, new_quantity):
+        print(f"Controller: Syncing item {item_id} to quantity {new_quantity}")
+
+        worker = CartUpdateWorker(self.repo, item_id, new_quantity)
+        QThreadPool.globalInstance().start(worker)
 
     def handle_user_message(self, text):
         """The central function managing the process"""

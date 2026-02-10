@@ -40,3 +40,9 @@ class SupermarketRepository:
             # Or raise an Exception that the Worker will catch
             print(f"Repository Error: {e}")
             return ClarificationRequest(question="Server Error", options=["Try Again"])
+        
+    def update_cart_item(self, item_id: str, quantity: int):
+        """
+        Sends the quantity update to the API Client.
+        """
+        self.api.update_cart_item("dummy_user_id", item_id, quantity)

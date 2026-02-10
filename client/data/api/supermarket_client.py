@@ -22,3 +22,12 @@ class SupermarketAPIClient:
             raise Exception("No connection to server")
         except Exception as e:
             raise Exception(f"API Error: {e}")
+    
+    def update_cart_item(self, user_id: str, item_id: str, quantity: int):
+        url = f"{self.base_url}/api/cart/update"
+        payload = {
+            "user_id": user_id,
+            "item_id": item_id,
+            "quantity": quantity,
+        }
+        requests.post(url, json=payload)

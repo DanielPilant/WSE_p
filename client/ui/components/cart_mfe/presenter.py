@@ -1,11 +1,16 @@
-from PySide6.QtCore import QObject
+from PySide6.QtCore import QObject, Signal
 from .view import CartView
 from .model import CartModel
 from models.types import StoreResult
 
 class CartPresenter(QObject):
-    def __init__(self):
+    
+    # Signal emitted when user changes quantity, to notify AppController to update the server
+    cart_item_changed = Signal(str, int)
+        
+    def __init__(self, repo):
         super().__init__()
+        self.repo = repo
         # 1. Create Model and View
         self.model = CartModel()
         self.view = CartView()
@@ -22,17 +27,21 @@ class CartPresenter(QObject):
         """Function called from outside (by AppController)"""
         self.model.set_data(result)
         self._refresh_view()
+    
+    def handle_quantity_change(self, item_id, delta):
+        success = self.model.update_quantity(item_id, delta)
+        
+        if success:
+            self._refresh_view()
+            current_qty = self.model.get_item_quantity(item_id)
+            self.cart_item_changed.emit(item_id, current_qty)
+            
 
     def on_increment(self, item_id):
-        # Update model
-        changed = self.model.update_quantity(item_id, 1)
-        if changed:
-            self._refresh_view()
+        self.handle_quantity_change(item_id, +1)
 
     def on_decrement(self, item_id):
-        changed = self.model.update_quantity(item_id, -1)
-        if changed:
-            self._refresh_view()
+        self.handle_quantity_change(item_id, -1)
 
     def _refresh_view(self):
         """Takes data from model and pushes it to View"""
@@ -42,3 +51,5 @@ class CartPresenter(QObject):
             self.model.items,
             self.model.total_price
         )
+    
+    
