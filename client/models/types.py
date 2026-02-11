@@ -11,11 +11,8 @@ class CartItem:
 
 # Representation of a successful response from the server
 @dataclass
-class StoreResult:
-    store_name: str
-    address: str
-    total_price: float
-    items: List[CartItem]
+class AgentResponse:
+    ai_message: str
 
 # Representation of a clarification request (when the AI is confused)
 @dataclass

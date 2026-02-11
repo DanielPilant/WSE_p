@@ -1,5 +1,5 @@
 from typing import List, Optional
-from models.types import CartItem, StoreResult
+from models.types import CartItem, AgentResponse
 
 class CartModel:
     def __init__(self):
@@ -9,12 +9,12 @@ class CartModel:
         self.total_price: float = 0.0
         self.items: List[CartItem] = []
 
-    def set_data(self, store_result: StoreResult):
-        """Update all data at once (e.g. when AI returns a result)"""
-        self.store_name = store_result.store_name
-        self.store_address = store_result.address
-        self.total_price = store_result.total_price
-        self.items = store_result.items
+    # def set_data(self, store_result: StoreResult):
+    #     """Update all data at once (e.g. when AI returns a result)"""
+    #     self.store_name = store_result.store_name
+    #     self.store_address = store_result.address
+    #     self.total_price = store_result.total_price
+    #     self.items = store_result.items
 
     def update_quantity(self, item_id: str, delta: int):
         """Business logic: change quantity and update total price"""

@@ -1,7 +1,7 @@
 from PySide6.QtCore import QObject, Signal
 from .view import CartView
 from .model import CartModel
-from models.types import StoreResult
+from models.types import AgentResponse
 
 class CartPresenter(QObject):
     
@@ -23,10 +23,10 @@ class CartPresenter(QObject):
         """Expose the View to the outside world (for the main Layout)"""
         return self.view
 
-    def update_data(self, result: StoreResult):
-        """Function called from outside (by AppController)"""
-        self.model.set_data(result)
-        self._refresh_view()
+    # def update_data(self, result: StoreResult):
+    #     """Function called from outside (by AppController)"""
+    #     self.model.set_data(result)
+    #     self._refresh_view()
     
     def handle_quantity_change(self, item_id, delta):
         success = self.model.update_quantity(item_id, delta)

@@ -1,20 +1,18 @@
 import requests
 import json
-from models.types import StoreResult, ClarificationRequest, CartItem
+from models.types import AgentResponse, ClarificationRequest, CartItem
 
 class SupermarketAPIClient:
-    def __init__(self, base_url="http://localhost:8000"):
-        self.base_url = base_url
+    def __init__(self, agent_url="http://localhost:8000/chat_message", database_url="http://localhost:8001"):
+        self.agent_url = agent_url
+        self.database_url = database_url
 
     def search_products(self, prompt: str, user_id: str) -> dict:
-        url = f"{self.base_url}/api/search"
-        payload = {
-            "prompt": prompt,
-            "user_id": user_id
-        }
+        url = f"{self.agent_url}"
+        payload = {"message": prompt}
         
         try:
-            response = requests.post(url, json=payload, timeout=10)
+            response = requests.post(self.agent_url, json=payload)
             response.raise_for_status()
             return response.json()
             
@@ -23,11 +21,11 @@ class SupermarketAPIClient:
         except Exception as e:
             raise Exception(f"API Error: {e}")
     
-    def update_cart_item(self, user_id: str, item_id: str, quantity: int):
-        url = f"{self.base_url}/api/cart/update"
+    def update_cart_item(self, user_id: str, item_name: str, quantity: int):
+        url = f"{self.database_url}/create_cart"
         payload = {
-            "user_id": user_id,
-            "item_id": item_id,
-            "quantity": quantity,
+            "action": "remove",
+            "item": [item_name],
+            "quantities": [quantity],
         }
         requests.post(url, json=payload)

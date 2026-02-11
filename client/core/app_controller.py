@@ -7,7 +7,7 @@ from data.repositories.supermarket_repo import SupermarketRepository
 from ui.dialogs.ambiguity_dialog import AmbiguityDialog
 from core.workers import AIWorker, CartUpdateWorker
 from core.user_manager import UserManager
-from models.types import ClarificationRequest, StoreResult
+from models.types import ClarificationRequest, AgentResponse
 
 class AppController(QMainWindow):
     def __init__(self):
@@ -83,11 +83,9 @@ class AppController(QMainWindow):
                 # Logic recursion: sending choice back to engine
                 self.handle_user_message(f"User specifically chose: {choice}")
 
-        # --- Case B: Server returned a result (StoreResult) ---
-        elif isinstance(result, StoreResult):
+        # --- Case B: Server returned a result (AgentResponse) ---
+        elif isinstance(result, AgentResponse):
             # Update Chat
-            self.chat_presenter.display_agent_response(
-                f"Found it! The cheapest basket is at {result.store_name}."
-            )
+            self.chat_presenter.display_agent_response(result.ai_message)
             # Update Cart Micro-Frontend with new data
             self.cart_presenter.update_data(result)

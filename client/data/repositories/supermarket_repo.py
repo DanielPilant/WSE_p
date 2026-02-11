@@ -1,4 +1,4 @@
-from models.types import StoreResult, ClarificationRequest, CartItem
+from models.types import AgentResponse, ClarificationRequest, CartItem
 from data.api.supermarket_client import SupermarketAPIClient
 
 class SupermarketRepository:
@@ -14,23 +14,20 @@ class SupermarketRepository:
             msg_type = raw_response.get("type")
             data = raw_response.get("data")
 
-            if msg_type == "result":
-                # Convert from Dict to StoreResult object
+            if msg_type == "response":
+                # Convert from Dict to AgentResponse object
                 # We also need to convert the inner list of items!
-                items_objs = [CartItem(**item) for item in data["items"]]
+                # items_objs = [CartItem(**item) for item in data["items"]]
                 
-                return StoreResult(
-                    store_name=data["store_name"],
-                    address=data["address"],
-                    total_price=data["total_price"],
-                    items=items_objs
+                return AgentResponse(
+                    ai_message=data["ai_message"],
                 )
 
-            elif msg_type == "clarification":
-                return ClarificationRequest(
-                    question=data["question"],
-                    options=data["options"]
-                )
+            # elif msg_type == "clarification":
+            #     return ClarificationRequest(
+            #         question=data["question"],
+            #         options=data["options"]
+            #     )
             
             else:
                 raise ValueError("Unknown response type from server")
@@ -41,8 +38,8 @@ class SupermarketRepository:
             print(f"Repository Error: {e}")
             return ClarificationRequest(question="Server Error", options=["Try Again"])
         
-    def update_cart_item(self, item_id: str, quantity: int):
+    def update_cart_item(self, item_name: str, quantity: int):
         """
         Sends the quantity update to the API Client.
         """
-        self.api.update_cart_item("dummy_user_id", item_id, quantity)
+        self.api.update_cart_item("dummy_user_id", item_name, quantity)
