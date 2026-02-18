@@ -1,4 +1,5 @@
 from PySide6.QtCore import QThread, Signal, QRunnable
+from models.types import StoreResult
 
 class AIWorker(QThread):
     finished = Signal(object) 
@@ -13,15 +14,19 @@ class AIWorker(QThread):
         result = self.repository.send_prompt_to_ai(self.prompt, self.user_id)
         self.finished.emit(result)
         
-class CartUpdateWorker(QRunnable):
-    def __init__(self, repo, item_id, quantity):
+class CartUpdateWorker(QThread):
+    # This signal will carry the updated StoreResult back to the Controller
+    finished = Signal(StoreResult)
+
+    def __init__(self, repository, item_id, new_quantity):
         super().__init__()
-        self.repo = repo
+        self.repository = repository
         self.item_id = item_id
-        self.quantity = quantity
+        self.new_quantity = new_quantity
 
     def run(self):
-        try:
-            self.repo.update_cart_item(self.item_id, self.quantity)
-        except Exception as e:
-            print(f"Background update failed: {e}")
+        # Runs the heavy 3-step pipeline in the background
+        updated_cart = self.repository.update_cart_item(self.item_id, self.new_quantity)
+        
+        # Send the final result back to the main thread
+        self.finished.emit(updated_cart)

@@ -39,5 +39,4 @@ class ChatView(QWidget):
             self.input_field.clear()
 
     def append_message(self, sender, text):
-        display_name = "YOU" if sender == "Me" else "AGENT"
-        self.history_display.append(f"[{display_name}]: {text}")
+        self.history_display.append(f"[{sender}]: {text}")

@@ -45,18 +45,37 @@ class AppController(QMainWindow):
         
         # --- Bootstrap ---
         self.user_manager.login_guest()
+        
+        print("Initializing session with Agent...")
+        is_connected = self.repo.initialize_session()
+        
+        if not is_connected:
+            self.chat_presenter.display_agent_response("⚠️ Warning: Could not connect to the Agent server. Is it running on port 8001?")
+        else:
+            self.chat_presenter.display_agent_response("Hi! The system is ready. What would you like to add to your cart?")
 
     def handle_cart_update(self, item_id, new_quantity):
         print(f"Controller: Syncing item {item_id} to quantity {new_quantity}")
-
-        worker = CartUpdateWorker(self.repo, item_id, new_quantity)
-        QThreadPool.globalInstance().start(worker)
-
+        
+        # Create and start the background worker
+        self.update_worker = CartUpdateWorker(self.repo, item_id, new_quantity)
+        
+        # Connect the worker's finished signal to an inline update function
+        self.update_worker.finished.connect(self.on_cart_updated)
+        self.update_worker.start()
+        
+    def on_cart_updated(self, fresh_cart: StoreResult):
+        # This gets called automatically when the background DB update finishes
+        print("Controller: Cart updated from DB. Refreshing UI...")
+        self.cart_presenter.update_data(fresh_cart)
+        
     def handle_user_message(self, text):
         """The central function managing the process"""
         
+        print(f"[1] USER INPUT: '{text}' received by Controller.")
+        
         # 1. Update chat that agent received the request
-        self.chat_presenter.display_agent_response("Checking supermarkets...")
+        self.chat_presenter.display_agent_response("Thinking...")
         
         # 2. Start background worker to call the AI API
         current_user_id = self.user_manager.current_user.id
@@ -71,23 +90,13 @@ class AppController(QMainWindow):
     def on_ai_response(self, result):
         """Handling the response from the server/mock"""
         
-        # --- Case A: Server is confused (Clarification) ---
-        if isinstance(result, ClarificationRequest):
-            # Create modal dialog
-            dialog = AmbiguityDialog(result, self)
-            if dialog.exec(): 
-                # If user chose an option and clicked OK
-                choice = dialog.selected_choice
-                self.chat_presenter.display_agent_response(f"Great, you chose: {choice}")
-                
-                # Logic recursion: sending choice back to engine
-                self.handle_user_message(f"User specifically chose: {choice}")
+        if isinstance(result, str):
 
-        # --- Case B: Server returned a result (StoreResult) ---
-        elif isinstance(result, StoreResult):
-            # Update Chat
-            self.chat_presenter.display_agent_response(
-                f"Found it! The cheapest basket is at {result.store_name}."
-            )
-            # Update Cart Micro-Frontend with new data
-            self.cart_presenter.update_data(result)
+            print(f"[5] CONTROLLER: Agent text received: '{result}'")
+            self.chat_presenter.display_agent_response(result)
+            
+            print(f"[6] CONTROLLER: Triggering Cart Refresh (fetch_cart)...")
+            cart_data = self.repo.fetch_cart()
+            
+            print(f"[8] CONTROLLER: Updating UI with {len(cart_data.items)} items.")
+            self.cart_presenter.update_data(cart_data)
