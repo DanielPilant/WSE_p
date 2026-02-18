@@ -108,7 +108,7 @@ class SupermarketRepository:
             
         try:
             print(f"Step 1: Patching DB Item '{item_id}' to quantity {new_quantity}")
-            # 1. Update quantities
+            # 1. Update quantitiesa5090586-991f-41a4-98b9-b99626758ea22c5c6d1f-058d-4757-be97-6261dc231bfe
             self.api.update_cart_item_in_db(self.current_cart_id, item_id, new_quantity)
             
             print(f"Step 2: Re-optimizing cart {self.current_cart_id}...")
@@ -122,3 +122,21 @@ class SupermarketRepository:
         except Exception as e:
             print(f"❌ DB Update Pipeline Error: {e}")
             return StoreResult("Update Failed", "", 0.0, [])
+        
+    def optimize_current_cart(self) -> StoreResult:
+        """Triggers DB optimization and returns the fresh cart state"""
+        if not self.current_cart_id:
+            print("⚠️ Cannot optimize: No active cart session.")
+            return StoreResult("Error", "", 0.0, [])
+
+        try:
+            print(f"🔄 Optimizing cart {self.current_cart_id}...")
+            # 1. Call the optimize endpoint
+            self.api.optimize_cart_in_db(self.current_cart_id)
+            
+            # 2. Fetch the updated result (new total price, new store)
+            return self.fetch_cart()
+            
+        except Exception as e:
+            print(f"❌ Optimization Failed: {e}")
+            return StoreResult("Optimization Failed", "", 0.0, [])

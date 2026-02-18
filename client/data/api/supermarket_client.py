@@ -6,7 +6,23 @@ class SupermarketAPIClient:
     def __init__(self, base_url="http://localhost:8001", db_url="http://localhost:8000"):
         self.base_url = base_url
         self.db_url = db_url
+        
+    # 1 - frontend to agent server
+    def initialize_session(self) -> dict:
+        url = f"{self.base_url}/session/initialize"
+        try:
+            response = requests.post(url, timeout=100)
+            response.raise_for_status()
+            print(f"API Client: Session initialization response: {response.text}")
+            return response.json()
+        except requests.exceptions.ConnectionError:
+            print("ERROR: Agent server (8001) is not reachable.")
+            raise Exception("No connection to Agent server on port 8001")
+        except Exception as e:
+            print(f"ERROR: Session initialization failed: {e}")
+            raise Exception(f"API Error: {e}")
 
+    # 2 - frontend to agent server
     def send_message(self, prompt: str, user_id: str) -> dict:
         url = f"{self.base_url}/chat_message"
         
@@ -27,20 +43,7 @@ class SupermarketAPIClient:
         except Exception as e:
             raise Exception(f"API Error: {e}")
     
-    def initialize_session(self) -> dict:
-        url = f"{self.base_url}/session/initialize"
-        try:
-            response = requests.post(url, timeout=100)
-            response.raise_for_status()
-            print(f"API Client: Session initialization response: {response.text}")
-            return response.json()
-        except requests.exceptions.ConnectionError:
-            print("ERROR: Agent server (8001) is not reachable.")
-            raise Exception("No connection to Agent server on port 8001")
-        except Exception as e:
-            print(f"ERROR: Session initialization failed: {e}")
-            raise Exception(f"API Error: {e}")
-    
+    # 3 - frontend to DB server
     def get_cart_from_db(self, cart_id: str) -> dict:
         url = f"{self.db_url}/cart/{cart_id}"
         try:
@@ -50,6 +53,7 @@ class SupermarketAPIClient:
         except Exception as e:
             raise Exception(f"DB API Error (get_cart): {e}")
     
+    # 4 - frontend to DB server
     def update_cart_item_in_db(self, cart_id: str, item_name: str, new_quantity: int) -> dict:
         """Sends a PATCH request to the DB to update an item's quantity"""
         url = f"{self.db_url}/cart/{cart_id}/items"
@@ -63,7 +67,8 @@ class SupermarketAPIClient:
             return response.json()
         except Exception as e:
             raise Exception(f"DB API Error (update_items): {e}")
-        
+    
+    # 5 - frontend to DB server
     def optimize_cart_in_db(self, cart_id: str) -> dict:
         """Sends a POST request to re-optimize the cart based on current items"""
         url = f"{self.db_url}/cart/{cart_id}/optimize"

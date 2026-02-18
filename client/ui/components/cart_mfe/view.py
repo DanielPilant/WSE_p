@@ -36,6 +36,7 @@ class CartItemRow(QWidget):
 class CartView(QWidget):
     item_incremented = Signal(str)
     item_decremented = Signal(str)
+    optimize_clicked = Signal()
 
     def __init__(self):
         super().__init__()
@@ -50,9 +51,25 @@ class CartView(QWidget):
         
         self.footer_lbl = QLabel("Total: 0.00 NIS")
         
+        self.optimize_btn = QPushButton("🔄 Find Cheapest Store")
+        self.optimize_btn.setCursor(Qt.PointingHandCursor)
+        self.optimize_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #2ecc71; 
+                color: white; 
+                font-weight: bold; 
+                padding: 8px; 
+                border-radius: 4px;
+            }
+            QPushButton:hover { background-color: #27ae60; }
+        """)
+        self.optimize_btn.clicked.connect(self.optimize_clicked.emit)
+        
         layout.addWidget(self.header_lbl)
         layout.addWidget(self.items_list)
         layout.addWidget(self.footer_lbl)
+        layout.addWidget(self.optimize_btn)
+        
         self.setLayout(layout)
 
     def render_cart(self, store_name, address, items, total_price):

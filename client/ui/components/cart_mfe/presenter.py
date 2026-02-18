@@ -7,6 +7,7 @@ class CartPresenter(QObject):
     
     # Signal emitted when user changes quantity, to notify AppController to update the server
     cart_item_changed = Signal(str, int)
+    optimize_requested = Signal()
         
     def __init__(self, repo):
         super().__init__()
@@ -18,6 +19,9 @@ class CartPresenter(QObject):
         # 2. Listen to events from View (clicks on +/-)
         self.view.item_incremented.connect(self.on_increment)
         self.view.item_decremented.connect(self.on_decrement)
+        
+        # 3. Listen to optimize button click
+        self.view.optimize_clicked.connect(self.optimize_requested.emit)
 
     def get_widget(self):
         """Expose the View to the outside world (for the main Layout)"""

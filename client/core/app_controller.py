@@ -5,7 +5,7 @@ from ui.components.chat_mfe.presenter import ChatPresenter
 from ui.components.user_mfe.presenter import UserPresenter
 from data.repositories.supermarket_repo import SupermarketRepository
 from ui.dialogs.ambiguity_dialog import AmbiguityDialog
-from core.workers import AIWorker, CartUpdateWorker
+from core.workers import AIWorker, CartOptimizeWorker, CartUpdateWorker
 from core.user_manager import UserManager
 from models.types import ClarificationRequest, StoreResult
 
@@ -27,6 +27,9 @@ class AppController(QMainWindow):
         # Connect cart item change signal to update worker
         self.cart_presenter.cart_item_changed.connect(self.handle_cart_update)
         
+        # Connect optimize button signal
+        self.cart_presenter.optimize_requested.connect(self.handle_optimize_request)
+
         # --- Main UI Layout ---
         central_widget = QWidget()
         main_layout = QHBoxLayout(central_widget)
@@ -100,3 +103,27 @@ class AppController(QMainWindow):
             
             print(f"[8] CONTROLLER: Updating UI with {len(cart_data.items)} items.")
             self.cart_presenter.update_data(cart_data)
+
+    def handle_optimize_request(self):
+        """Called when user clicks 'Find Cheapest Store'"""
+        print("Controller: Optimizing cart requested...")
+        self.chat_presenter.display_agent_response("🔄 Checking prices across all stores...")
+        
+        # Start the background worker
+        self.opt_worker = CartOptimizeWorker(self.repo)
+        
+        # Reuse on_cart_updated because it does exactly what we need (updates the UI)
+        self.opt_worker.finished.connect(self.on_optimize_finished)
+        self.opt_worker.start()
+    
+    def on_optimize_finished(self, result: StoreResult):
+        
+        print(f"Controller: Optimization done. Store: {result.store_name}, Total: {result.total_price}")
+        self.cart_presenter.update_data(result)
+    
+        if result.total_price > 0:
+            msg = f"✅ Done! The best deal is at **{result.store_name}** for **{result.total_price:.2f} NIS**."
+        else:
+            msg = "⚠️ Optimization complete, but the cart seems empty or an error occurred."
+            
+        self.chat_presenter.display_agent_response(msg)

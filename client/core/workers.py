@@ -30,3 +30,16 @@ class CartUpdateWorker(QThread):
         
         # Send the final result back to the main thread
         self.finished.emit(updated_cart)
+    
+class CartOptimizeWorker(QThread):
+    # Returns the new optimized cart
+    finished = Signal(StoreResult)
+
+    def __init__(self, repository):
+        super().__init__()
+        self.repository = repository
+
+    def run(self):
+        # Runs the optimization in background
+        optimized_cart = self.repository.optimize_current_cart()
+        self.finished.emit(optimized_cart)
