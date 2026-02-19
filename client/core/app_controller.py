@@ -31,11 +31,11 @@ class AppController(QMainWindow):
         
         # --- Data & State Layer ---
         self.repo = SupermarketRepository()
-        self.user_manager = UserManager()
+        #self.user_manager = UserManager() 
         
         # --- Presentation Layer ---
-        self.chat_presenter = ChatPresenter()
-        self.cart_presenter = CartPresenter(self.repo)
+        self.chat_presenter = ChatPresenter() # No repo needed for chat presenter since it only displays text and sends user input back to the controller
+        self.cart_presenter = CartPresenter(self.repo) # We pass the repo to the cart presenter because it needs to trigger updates when quantities change
         
         # Connect cart item change signal to update worker
         self.cart_presenter.cart_item_changed.connect(self.handle_cart_update)
@@ -64,7 +64,7 @@ class AppController(QMainWindow):
         else:
             self.chat_presenter.display_agent_response("Hi! I'm your AI shopping assistant. What would you like to add to your cart today?")
 
-    # --- UI Construction Methods ---
+    # ============= UI Construction Methods =================================================================
     def setup_ui(self):
         """Build the 3-column layout: Sidebar, Chat, Cart"""
         central_widget = QWidget()
@@ -90,7 +90,7 @@ class AppController(QMainWindow):
         main_layout.addWidget(chat_container, 1)  # stretch factor 1
         main_layout.addWidget(cart_container)
         
-    # --- UI Component Creation Methods ---
+    # ============= UI Component Creation Methods ===========================================================
     def _create_sidebar(self):
         """Create the collapsible sidebar with history placeholder"""
         sidebar = QWidget()
@@ -275,7 +275,7 @@ class AppController(QMainWindow):
             
         self.sidebar_animation.start()
 
-    # --- Interaction Handlers ---
+    # ============= Interaction Handlers ====================================================================
     def handle_cart_update(self, item_id, new_quantity):
         print(f"Controller: Syncing item {item_id} to quantity {new_quantity}")
         
