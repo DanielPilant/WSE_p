@@ -106,21 +106,24 @@ class CartItemCard(QFrame):
         pill_row.setSpacing(0)
 
         btn_minus = QPushButton("−")
-        btn_minus.setFixedSize(30, 30)
+        btn_minus.setFixedSize(28, 28)
         btn_minus.setCursor(Qt.PointingHandCursor)
         btn_minus.setToolTip("Decrease quantity")
         btn_minus.setStyleSheet(f"""
             QPushButton {{
-                background: transparent;
+                background-color: {T.BG_QUANTITY_BTN};
                 border: none;
-                border-radius: 15px;
-                color: {T.TEXT_PRIMARY};
-                font-size: 16px;
+                border-radius: 14px;
+                color: #FFFFFF;
+                font-size: 15px;
                 font-weight: bold;
             }}
             QPushButton:hover {{
                 background-color: {T.ACCENT_COLOR};
                 color: white;
+            }}
+            QPushButton:pressed {{
+                background-color: {T.ACCENT_PRESSED};
             }}
         """)
         btn_minus.clicked.connect(lambda: self.on_minus(self.item.id))
@@ -136,21 +139,24 @@ class CartItemCard(QFrame):
         """)
 
         btn_plus = QPushButton("+")
-        btn_plus.setFixedSize(30, 30)
+        btn_plus.setFixedSize(28, 28)
         btn_plus.setCursor(Qt.PointingHandCursor)
         btn_plus.setToolTip("Increase quantity")
         btn_plus.setStyleSheet(f"""
             QPushButton {{
-                background: transparent;
+                background-color: {T.BG_QUANTITY_BTN};
                 border: none;
-                border-radius: 15px;
-                color: {T.TEXT_PRIMARY};
-                font-size: 16px;
+                border-radius: 14px;
+                color: #FFFFFF;
+                font-size: 15px;
                 font-weight: bold;
             }}
             QPushButton:hover {{
                 background-color: {T.ACCENT_COLOR};
                 color: white;
+            }}
+            QPushButton:pressed {{
+                background-color: {T.ACCENT_PRESSED};
             }}
         """)
         btn_plus.clicked.connect(lambda: self.on_plus(self.item.id))

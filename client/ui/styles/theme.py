@@ -14,8 +14,8 @@ class DarkTheme:
     BG_CARD = "#2F2F2F"           # Cards/messages background
     BG_SURFACE = "#2F2F2F"        # Elevated surface
     BG_SURFACE_HOVER = "#383838"  # Elevated surface hover
-    BG_INPUT = "#3C3C3C"          # Input field background
-    BG_INPUT_FOCUS = "#454545"    # Input field focused state
+    BG_INPUT = "#40414F"          # Input field background (distinct from BG_MAIN)
+    BG_INPUT_FOCUS = "#4A4B5C"    # Input field focused state
     BG_OVERLAY = "#000000CC"      # Modal overlay (with transparency)
     
     # ============================================
@@ -36,7 +36,7 @@ class DarkTheme:
     # ============================================
     BG_CART_CARD = "#2F2F2F"      # Cart item card background (pops against sidebar)
     BG_CART_CARD_HOVER = "#3A3A3A"  # Cart item hover
-    BG_QUANTITY_BTN = "#3C3C3C"   # Quantity +/- button background
+    BG_QUANTITY_BTN = "#4A4B5C"   # Quantity +/- button background (visible)
     
     # ============================================
     # TEXT COLORS
@@ -68,7 +68,7 @@ class DarkTheme:
     # ============================================
     BORDER_COLOR = "#4A4A4A"      # Default border
     BORDER_SUBTLE = "#333333"     # Subtle border
-    BORDER_INPUT = "#4A4A4A"      # Input field border
+    BORDER_INPUT = "#565869"      # Input field border (visible against dark bg)
     BORDER_INPUT_FOCUS = "#10a37f"  # Input focused border
     DIVIDER = "#444654"           # Divider lines
     

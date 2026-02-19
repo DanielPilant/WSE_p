@@ -214,11 +214,15 @@ class ChatInputWidget(QWidget):
         T = CURRENT_THEME
 
         self.setObjectName("chat_input_pill")
+        self.setMinimumHeight(56)
         self.setStyleSheet(f"""
             #chat_input_pill {{
                 background-color: {T.BG_INPUT};
-                border: 1px solid {T.BORDER_INPUT};
+                border: 1.5px solid {T.BORDER_INPUT};
                 border-radius: 26px;
+            }}
+            #chat_input_pill:hover {{
+                border-color: {T.BORDER_INPUT_FOCUS};
             }}
         """)
 
