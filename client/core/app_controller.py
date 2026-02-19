@@ -31,7 +31,7 @@ class AppController(QMainWindow):
         
         # --- Data & State Layer ---
         self.repo = SupermarketRepository()
-        #self.user_manager = UserManager() 
+        self.user_manager = UserManager() 
         
         # --- Presentation Layer ---
         self.chat_presenter = ChatPresenter() # No repo needed for chat presenter since it only displays text and sends user input back to the controller
