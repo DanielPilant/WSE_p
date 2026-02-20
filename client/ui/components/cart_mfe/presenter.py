@@ -49,6 +49,27 @@ class CartPresenter(QObject):
 
     def _refresh_view(self):
         """Takes data from model and pushes it to View"""
+        
+        # # ==========================================
+        # # 🧪 MOCK DATA FOR UI TESTING - למחוק בסיום העיצוב!
+        # # ==========================================
+        # from models.types import CartItem
+        # import uuid
+        
+        # # בודק אם המוצר המזויף כבר קיים כדי לא להוסיף אותו כפול
+        # if not any(item.name == "מוצר בדיקה (במבה)" for item in self.model.items):
+        #     dummy_item = CartItem(
+        #         id=str(uuid.uuid4()),  # מזהה פיקטיבי כדי שהפלוס/מינוס יעבדו
+        #         name="מוצר בדיקה (במבה)",
+        #         price=14.90,
+        #         quantity=1
+        #     )
+        #     # דוחף את המוצר למודל ומעדכן את המחיר
+        #     self.model.items.append(dummy_item)
+        #     self.model.total_price += dummy_item.price
+        #     self.model.store_name = "חנות עיצובים בע''מ"
+        # # ==========================================
+        
         self.view.render_cart(
             self.model.store_name,
             self.model.store_address,

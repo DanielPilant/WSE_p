@@ -241,14 +241,19 @@ class ChatInputWidget(QWidget):
         self.input_field = QLineEdit()
         self.input_field.setObjectName("chat_input")
         self.input_field.setPlaceholderText("Message the AI assistant...")
-        self.input_field.setStyleSheet(f"""
-            QLineEdit {{
-                background: transparent;
-                border: none;
-                padding: 10px 4px;
-                color: {T.TEXT_PRIMARY};
-                font-size: 15px;
-            }}
+        self.input_field.setStyleSheet("""
+            QLineEdit { 
+                background-color: #40414F; 
+                border: 1px solid #565869; 
+                border-radius: 18px;       
+                color: #FFFFFF;            
+                padding: 10px 15px;        
+                font-size: 14px;
+            }
+            QLineEdit:focus {
+                border: 1px solid #10a37f; 
+                background-color: #484a56; 
+            }
         """)
         self.input_field.returnPressed.connect(self._on_send)
 

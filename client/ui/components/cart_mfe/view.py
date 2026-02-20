@@ -28,18 +28,20 @@ class CartItemCard(QFrame):
     def _build(self):
         T = CURRENT_THEME
 
+        
         self.setObjectName("cart_card")
         self.setCursor(Qt.PointingHandCursor)
-        self.setStyleSheet(f"""
-            #cart_card {{
-                background-color: {T.BG_CART_CARD};
-                border: 1px solid {T.BORDER_SUBTLE};
-                border-radius: 10px;
-            }}
-            #cart_card:hover {{
-                background-color: {T.BG_CART_CARD_HOVER};
-                border-color: {T.BORDER_COLOR};
-            }}
+        self.setFixedHeight(90)
+        self.setStyleSheet("""
+            #cart_card {
+                background-color: rgba(255, 255, 255, 0.04); 
+                border: 1px solid rgba(255, 255, 255, 0.05); 
+                border-radius: 12px;
+            }
+            #cart_card:hover {
+                background-color: rgba(255, 255, 255, 0.08);
+                border-color: rgba(255, 255, 255, 0.15);
+            }
         """)
 
         # Subtle elevation shadow
@@ -117,6 +119,8 @@ class CartItemCard(QFrame):
                 color: #FFFFFF;
                 font-size: 15px;
                 font-weight: bold;
+                padding: 0px;
+                text-align: center;
             }}
             QPushButton:hover {{
                 background-color: {T.ACCENT_COLOR};
@@ -150,6 +154,9 @@ class CartItemCard(QFrame):
                 color: #FFFFFF;
                 font-size: 15px;
                 font-weight: bold;
+                padding: 0px;
+                text-align: center;
+                
             }}
             QPushButton:hover {{
                 background-color: {T.ACCENT_COLOR};
